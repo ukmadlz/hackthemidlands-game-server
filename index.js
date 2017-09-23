@@ -33,7 +33,8 @@ app.get('/', (req, res) => {
   res.send({
     state: gameCache.get('game-state')
       ? gameCache.get('game-state').state
-      : 'not-started'
+      : 'not-started',
+    leaderboard: gameCache.get('leaderboard') || {}
   });
 });
 
@@ -91,6 +92,28 @@ app.get('/player-move/:player/:power/:angle', (req, res) => {
   };
   socketSend(playerMove);
   res.send(playerMove);
+});
+
+// Player point
+app.get('/player-point/:player', (req, res) => {
+  const playerId = `player-${req.params.player}`;
+  let playerData = gameCache.get(playerId);
+  if (playerData) {
+    if (!playerData.points) playerData.points = [];
+    playerData.points.push(moment.format());
+    playerData.timestamp = moment.format();
+    gameCache.set(playerId, playerData, (err, success) => {
+      let leaderboard = gameCache.get('leaderboard');
+      if (!leaderboard) leaderboard = {};
+      leaderboard[playerId] =
+        (leaderboard[playerId] ? leaderboard[playerId] : 0) + 1;
+      gameCache.set('leaderboard', leaderboard, (err, success) => {
+        res.send(playerData);
+      });
+    });
+  } else {
+    res.send({ error: true, message: 'Player not found' });
+  }
 });
 
 // Server
