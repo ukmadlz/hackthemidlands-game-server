@@ -7,16 +7,7 @@ const path = require('path');
 const express = require('express');
 let app = express();
 const server = require('http').Server(app);
-
-const io = require('socket.io')(server, { origins: null });
-const Pusher = require('pusher');
-const pusher = new Pusher({
-  appId: '404522',
-  key: '17f51d992388ac782d51',
-  secret: '326de43bd095e458c2e4',
-  cluster: 'eu',
-  encrypted: true
-});
+const socketSend = require('./lib/socket')(server);
 
 app.use(require('morgan')('combined'));
 app.use(require('cors')());
@@ -57,10 +48,7 @@ app.get('/start', (req, res) => {
     timestamp: moment.format()
   };
   gameCache.set('game-state', gameStatus, (err, success) => {
-    io.on('connection', socket => {
-      socket.emit('game', gameStatus);
-    });
-    pusher.trigger('game', gameStatus.type, gameStatus);
+    socketSend(gameStatus);
     res.send(gameStatus);
   });
 });
@@ -73,10 +61,7 @@ app.get('/end', (req, res) => {
     timestamp: moment.format()
   };
   gameCache.set('game-state', gameStatus, (err, success) => {
-    io.on('connection', socket => {
-      socket.emit('game', gameStatus);
-    });
-    pusher.trigger('game', gameStatus.type, gameStatus);
+    socketSend(gameStatus);
     res.send(gameStatus);
   });
 });
@@ -90,10 +75,7 @@ app.get('/player-add/:player/:color', (req, res) => {
     timestamp: moment.format()
   };
   gameCache.set(`player-${req.params.player}`, playerAdd, (err, success) => {
-    io.on('connection', socket => {
-      socket.emit('game', playerAdd);
-    });
-    pusher.trigger('game', playerAdd.type, playerAdd);
+    socketSend(playerAdd);
     res.send(playerAdd);
   });
 });
@@ -107,10 +89,7 @@ app.get('/player-move/:player/:power/:angle', (req, res) => {
     angle: req.params.angle,
     timestamp: moment.format()
   };
-  io.on('connection', socket => {
-    socket.emit('game', playerMove);
-  });
-  pusher.trigger('game', playerMove.type, playerMove);
+  socketSend(playerMove);
   res.send(playerMove);
 });
 
