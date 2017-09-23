@@ -5,10 +5,18 @@
 //
 const path = require('path');
 const express = require('express');
-const app = express();
+let app = express();
 const server = require('http').Server(app);
 
 const io = require('socket.io')(server, { origins: null });
+const Pusher = require('pusher');
+const pusher = new Pusher({
+  appId: '404522',
+  key: '17f51d992388ac782d51',
+  secret: '326de43bd095e458c2e4',
+  cluster: 'eu',
+  encrypted: true
+});
 
 app.use(require('morgan')('combined'));
 app.use(require('cors')());
@@ -52,6 +60,7 @@ app.get('/start', (req, res) => {
     io.on('connection', socket => {
       socket.emit('game', gameStatus);
     });
+    pusher.trigger('game', gameStatus.type, gameStatus);
     res.send(gameStatus);
   });
 });
@@ -67,6 +76,7 @@ app.get('/end', (req, res) => {
     io.on('connection', socket => {
       socket.emit('game', gameStatus);
     });
+    pusher.trigger('game', gameStatus.type, gameStatus);
     res.send(gameStatus);
   });
 });
@@ -83,6 +93,7 @@ app.get('/player-add/:player/:color', (req, res) => {
     io.on('connection', socket => {
       socket.emit('game', playerAdd);
     });
+    pusher.trigger('game', playerAdd.type, playerAdd);
     res.send(playerAdd);
   });
 });
@@ -99,6 +110,7 @@ app.get('/player-move/:player/:power/:angle', (req, res) => {
   io.on('connection', socket => {
     socket.emit('game', playerMove);
   });
+  pusher.trigger('game', playerMove.type, playerMove);
   res.send(playerMove);
 });
 
