@@ -3,6 +3,7 @@
 //
 // App setup
 //
+const path = require('path');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
@@ -36,6 +37,9 @@ app.get('/', (req, res) => {
       : 'not-started'
   });
 });
+
+// Static content
+app.use('/', express.static(path.join(__dirname, 'public')));
 
 // Start a game
 app.get('/start', (req, res) => {
