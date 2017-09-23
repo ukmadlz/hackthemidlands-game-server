@@ -8,7 +8,7 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 
-const io = require('socket.io')(server, { origins: '*:*' });
+const io = require('socket.io')(server, { origins: null });
 
 app.use(require('morgan')('combined'));
 app.use(require('cors')());
