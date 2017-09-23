@@ -83,15 +83,20 @@ app.get('/player-add/:player/:color', (req, res) => {
 
 // Player move
 app.get('/player-move/:player/:power/:angle', (req, res) => {
-  const playerMove = {
-    type: 'player-move',
-    player: req.params.player,
-    power: req.params.power,
-    angle: req.params.angle,
-    timestamp: moment.format()
-  };
-  socketSend(playerMove);
-  res.send(playerMove);
+  const playerId = `player-${req.params.player}`;
+  if (gameCache.get(playerId)) {
+    const playerMove = {
+      type: 'player-move',
+      player: req.params.player,
+      power: req.params.power,
+      angle: req.params.angle,
+      timestamp: moment.format()
+    };
+    socketSend(playerMove);
+    res.send(playerMove);
+  } else {
+    res.send({ error: true, message: 'Player not found' });
+  }
 });
 
 // Player point
