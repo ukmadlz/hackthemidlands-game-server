@@ -14,6 +14,7 @@
     "socket.io": "^2.0.3"
   },
   "scripts": {
+    "start": "pm2 index.js",
     "start-dev": "nodemon --inspect index.js"
   }
 }
